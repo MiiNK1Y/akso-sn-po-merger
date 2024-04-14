@@ -1,3 +1,5 @@
+#!./env/bin/python3
+
 import openpyxl
 import configparser
 
@@ -20,7 +22,7 @@ class excel_workbook():
     def map_data_pair(self, column_0: int, column_1: int) -> list:
         column_data_pair = []
         for row in self.sheet.iter_rows(1, self.sheet_height, values_only=True):
-            data_pair.append(row[column_0] + . + row[column_1])
+            data_pair.append(row[column_0] + "." + row[column_1])
 
         return column_data_pair
 
@@ -60,10 +62,18 @@ class excel_workbook():
                 row_count += 1
 
 def main():
-    #implement a way to seek the oldest and newest filename-dates, then work on those files instead of manualy naming them.
-    old_path = "./old.xlsx"
-    new_path = "./new.xlsx"
-    final_path = "./final.xlsx"
+    #TODO: implement a way to seek the oldest and newest filename-dates, then work on those files instead of manualy naming them.
+
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    default_config = config['DEFAULT']
+
+    old_path = default_config['old_sheet_path']
+    new_path = default_config['new_sheet_path']
+    final_path = default_config['final_sheet_path']
+    columns_to_delete = default_config['columns_to_delete']
+    serial_text = default_config['serial_column_text']
+
 
 if __name__ == '__main__':
     main()
