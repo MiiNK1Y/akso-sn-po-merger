@@ -62,6 +62,24 @@ class excel_workbook():
                 row_count += 1
 
 def main():
+    # THIS VERSION IS BIG BRAIN BRO
+    # TODO: implement date-logic, eg: no more than 31 days a month, no more than 12 months, year may wary.
+    def get_date_from_filename(file_name: str) -> str:
+        char_list = ".0123456789" #instead of trying to convert every character to int
+        date_format = "dd.mm.yyyy"
+        for index, char in enumerate(file_name):
+            if char in char_list:
+                date_index_list = len(date_format) + 1
+                for x in range(date_index_list):
+                    if file_name[index + x] not in char_list:
+                        break
+                    elif x == (len(date_format)):
+                        return file_name[index:(index + x)]
+                    else:
+                        continue
+
+    print(get_date_from_filename('test_fil_fra_Dmanage_12.02.2024.xlsx'))
+
     #TODO: implement a way to seek the oldest and newest filename-dates, then work on those files instead of manualy naming them.
 
     config = configparser.ConfigParser()
