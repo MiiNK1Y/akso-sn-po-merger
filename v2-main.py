@@ -1,5 +1,6 @@
 #!./env/bin/python3
 
+import os
 import openpyxl
 import configparser
 
@@ -97,6 +98,14 @@ def get_newest_date(d1: str, d2: str) -> str:
     else:
         return d2
 
+def get_excel_files() -> list:
+    files = os.listdir()
+    excel_files = []
+    for file in files:
+        if file[-5:-1] == '.xlsx':
+            excel_files.append(file)
+    return excel_files
+
 def main() -> None:
     config = configparser.ConfigParser()
     config.read('config.ini')
@@ -111,6 +120,50 @@ def main() -> None:
     final_sheet_column_insert_po = default_config['final_sheet_column_insert_po']
     none_to_match_replacement = default_config['none_to_match_replacement']
     no_match_replacement = default_config['no_match_replacement']
+
+    excel_files = get_excel_files()
+    new_sheet_name = get_newest_date(excel_files[0], excel_files[1])
+    if new_sheet_name = excel_files[0]:
+        old_sheet_name == excel_files[1]
+    else:
+        old_sheet_name == excel_files[0]
+    # Ask Tina what name-convention she uses for the final product, so i can implement it.
+    final_sheet_name = 'final.xlsx'
+
+    new_sheet_path = new_sheet_path + new_sheet_name
+    old_sheet_path = old_sheet_path + old_sheet_name
+    final_sheet_path = final_sheet_path + final_sheet_name
+
+    old_sheet = excel_sheet(old_sheet_path)
+    new_sheet = excel_sheet(new_sheet_path)
+    
+    # need to convert "columns_to_delete" from string into list, for the compability.
+    new_sheet.delete_column(columns_to_delete)
+    new_sheet.save_workbook(final_sheet_path)
+    new_sheet.close_workbook()
+
+    final_sheet = excel_sheet(final_sheet_path)
+
+    old_sheet_header = old_sheet.get_all_column_header()
+    old_sheet_serial_index = old_sheet_header.index(serial_column_text)
+    old_sheet_po_index = old_sheet_headers.index(po_column_text)
+    old_sheet_sn_po = old_sheet.create_column_data_pair(old_sheet_serial_index, old_sheet_po_index)
+
+    final_sheet_headers = final_sheet.get_all_column_header()
+    final_sheet_serial_index = final_sheet_headers.index(serial_column_text)
+    
+    final_sheet.match_and_insert(
+            column_lane_index=final_sheet_serial_index,
+            column_insert_index=final_sheet_column_insert_po,
+            replacement_0=none_to_match_replacement,
+            replacement_1=no_match_replacement,
+            data=old_sheet_sn_po
+            )
+
+    final_sheet.save_workbook(final_sheet_path)
+    final_sheet.close_workbook()
+    old_sheet.close_workbook()
+    print("\nDONE\n")
 
     print(columns_to_delete)
 
