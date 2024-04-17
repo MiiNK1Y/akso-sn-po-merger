@@ -1,19 +1,20 @@
 #!./env/bin/python3
 
 import os
-import openpyxl
 import configparser
+import openpyxl
 
 class excel_workbook():
+
     def __init__(self, path: str) -> None:
         self.xlsx_file = path
-        self.workbook = openpyxl.load_workbook(self.xlsx_files)
+        self.workbook = openpyxl.load_workbook(self.xlsx_file)
         self.sheet = self.workbook.active
         self.sheet_height = self.sheet.max_row
         self.sheet_width = self.sheet.max_column
 
-    def get_column_header(self) -> list:
-        column_header = []
+    def get_all_column_headers(self) -> list:
+        column_headers = []
         for header in self.sheet.iter_cols(1, self.sheet_width, values_only=True):
             column_headers.append(header[0])
         return column_headers
@@ -21,7 +22,7 @@ class excel_workbook():
     def map_data_pair(self, column_0: int, column_1: int) -> list:
         column_data_pair = []
         for row in self.sheet.iter_rows(1, self.sheet_height, values_only=True):
-            data_pair.append(row[column_0] + "." + row[column_1])
+            column_data_pair.append(str(row[column_0]) + "." + str(row[column_1]))
         return column_data_pair
 
     def delete_column(self, columns_delete: list) -> None:
@@ -64,7 +65,7 @@ def date_is_valid(date: str) -> bool:
     else:
         return False
 
-def get_date_from_str(file_name: str) -> str:
+def get_date_from_str(file_name: str) -> str | None:
     char_list = ".0123456789" #instead of trying to convert every character to int
     date_format = "dd.mm.yyyy"
     for index, char in enumerate(file_name):
@@ -88,7 +89,7 @@ def get_date_from_str(file_name: str) -> str:
             continue
 
 # THIS ONE IS BIG BRAIN UNIQUE BRO.
-def get_newest_date(d1: str, d2: str) -> str:
+def get_newest_date(d1: str, d2: str) -> str | None:
     if d1 == d2:
         return None
     d1_formated = d1.split('.')[::-1]
@@ -99,10 +100,10 @@ def get_newest_date(d1: str, d2: str) -> str:
         return d2
 
 def get_excel_files() -> list:
-    files = os.listdir()
+    files = os.listdir('.')
     excel_files = []
     for file in files:
-        if file[-5:-1] == '.xlsx':
+        if file[-5:] == '.xlsx':
             excel_files.append(file)
     return excel_files
 
@@ -121,35 +122,39 @@ def main() -> None:
     none_to_match_replacement = default_config['none_to_match_replacement']
     no_match_replacement = default_config['no_match_replacement']
 
+    final_sheet_column_insert_po = int(final_sheet_column_insert_po) # converted to in, since configparser only keeps strings.
+
     excel_files = get_excel_files()
-    new_sheet_name = get_newest_date(excel_files[0], excel_files[1])
-    if new_sheet_name = excel_files[0]:
-        old_sheet_name == excel_files[1]
+    new_sheet_name = str(get_newest_date(excel_files[0], excel_files[1]))
+    if new_sheet_name == excel_files[0]:
+        old_sheet_name = excel_files[1]
     else:
-        old_sheet_name == excel_files[0]
+        old_sheet_name = excel_files[0]
     # Ask Tina what name-convention she uses for the final product, so i can implement it.
+    # implement a way to show how many cells dont carry a PO, and needs to be filled in manually. Kinda like a warning of sort.
     final_sheet_name = 'final.xlsx'
 
     new_sheet_path = new_sheet_path + new_sheet_name
     old_sheet_path = old_sheet_path + old_sheet_name
     final_sheet_path = final_sheet_path + final_sheet_name
 
-    old_sheet = excel_sheet(old_sheet_path)
-    new_sheet = excel_sheet(new_sheet_path)
+    old_sheet = excel_workbook(old_sheet_path)
+    new_sheet = excel_workbook(new_sheet_path)
     
-    # need to convert "columns_to_delete" from string into list, for the compability.
+    columns_to_delete = columns_to_delete.split(',') # need to convert "columns_to_delete" from string into list, for the compability.
+    columns_to_delete = [eval(i) for i in columns_to_delete] # use eval to convert every str-number to actual int.
     new_sheet.delete_column(columns_to_delete)
     new_sheet.save_workbook(final_sheet_path)
     new_sheet.close_workbook()
 
-    final_sheet = excel_sheet(final_sheet_path)
+    final_sheet = excel_workbook(final_sheet_path)
 
-    old_sheet_header = old_sheet.get_all_column_header()
-    old_sheet_serial_index = old_sheet_header.index(serial_column_text)
+    old_sheet_headers = old_sheet.get_all_column_headers()
+    old_sheet_serial_index = old_sheet_headers.index(serial_column_text)
     old_sheet_po_index = old_sheet_headers.index(po_column_text)
-    old_sheet_sn_po = old_sheet.create_column_data_pair(old_sheet_serial_index, old_sheet_po_index)
+    old_sheet_sn_po = old_sheet.map_data_pair(old_sheet_serial_index, old_sheet_po_index)
 
-    final_sheet_headers = final_sheet.get_all_column_header()
+    final_sheet_headers = final_sheet.get_all_column_headers()
     final_sheet_serial_index = final_sheet_headers.index(serial_column_text)
     
     final_sheet.match_and_insert(
@@ -164,8 +169,6 @@ def main() -> None:
     final_sheet.close_workbook()
     old_sheet.close_workbook()
     print("\nDONE\n")
-
-    print(columns_to_delete)
 
 if __name__ == '__main__':
     main()
