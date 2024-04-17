@@ -108,13 +108,16 @@ def get_excel_files() -> list:
     return excel_files
 
 def main() -> None:
+    # set configparser to read the config.
     config = configparser.ConfigParser()
     config.read('config.ini')
     default_config = config['DEFAULT']
 
+    # set all config.ini-values to their respective variables, making them usable.
     old_sheet_path = default_config['old_sheet_path']
     new_sheet_path = default_config['new_sheet_path']
     final_sheet_path = default_config['final_sheet_path']
+    final_sheet_name = default_config['final_sheet_name']
     columns_to_delete = default_config['columns_to_delete']
     serial_column_text = default_config['serial_column_text']
     po_column_text = default_config['po_column_text']
@@ -122,27 +125,35 @@ def main() -> None:
     none_to_match_replacement = default_config['none_to_match_replacement']
     no_match_replacement = default_config['no_match_replacement']
 
-    final_sheet_column_insert_po = int(final_sheet_column_insert_po) # converted to in, since configparser only keeps strings.
+    # converted to int, since configparser only keeps strings.
+    final_sheet_column_insert_po = int(final_sheet_column_insert_po)
 
+    # find the files to be manipulated.
     excel_files = get_excel_files()
+  
+    # assign the excel files to variables based on the dates detected in their names, NOT meta-data dates.
     new_sheet_name = str(get_newest_date(excel_files[0], excel_files[1]))
     if new_sheet_name == excel_files[0]:
         old_sheet_name = excel_files[1]
     else:
         old_sheet_name = excel_files[0]
-    # Ask Tina what name-convention she uses for the final product, so i can implement it.
-    # implement a way to show how many cells dont carry a PO, and needs to be filled in manually. Kinda like a warning of sort.
-    final_sheet_name = 'final.xlsx'
 
+    #TODO: implement a way to show how many cells dont carry a PO, and needs to be filled in manually. Kinda like a warning of sort.
+    #TODO: implement a warning-function for when things dont go as planned (eg: multiple xlsx files in the the dir, the dates of files are the same, etc)
+
+    # assign the full file-path based on previous variables, to other variables that combine the path and the file-name.
     new_sheet_path = new_sheet_path + new_sheet_name
     old_sheet_path = old_sheet_path + old_sheet_name
     final_sheet_path = final_sheet_path + final_sheet_name
 
+    # activate the workbooks.
     old_sheet = excel_workbook(old_sheet_path)
     new_sheet = excel_workbook(new_sheet_path)
     
-    columns_to_delete = columns_to_delete.split(',') # need to convert "columns_to_delete" from string into list, for the compability.
-    columns_to_delete = [eval(i) for i in columns_to_delete] # use eval to convert every str-number to actual int.
+    # need to convert "columns_to_delete" from string into list, for the compability.
+    columns_to_delete = columns_to_delete.split(',')
+    # use eval to convert every str-number to actual int.
+    columns_to_delete = [eval(i) for i in columns_to_delete]
     new_sheet.delete_column(columns_to_delete)
     new_sheet.save_workbook(final_sheet_path)
     new_sheet.close_workbook()
