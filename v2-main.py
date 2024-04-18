@@ -181,8 +181,7 @@ def main() -> None:
             )
 
     final_sheet_blank_POs = final_sheet.get_blank_cells()
-    if final_sheet_blank_POs > 0:
-        print(f"[!] Serial numbers without PO: {final_sheet_blank_POs}")
+    print(f"[!] Serial numbers without PO: {final_sheet_blank_POs}")
     
     final_sheet.save_workbook(final_sheet_path)
     final_sheet.close_workbook()
