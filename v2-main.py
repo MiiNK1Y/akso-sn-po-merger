@@ -12,6 +12,7 @@ class excel_workbook():
         self.sheet = self.workbook.active
         self.sheet_height = self.sheet.max_row
         self.sheet_width = self.sheet.max_column
+        self.blank_cells = 0
 
     def get_all_column_headers(self) -> list:
         column_headers = []
@@ -35,7 +36,7 @@ class excel_workbook():
     def close_workbook(self) -> None:
         self.workbook.close() 
 
-    def match_and_insert(self, column_lane_index: int, column_insert_index: int, replacement_0: str, replacement_1: str, data: list) -> None:
+    def match_and_insert(self, column_lane_index: int, column_insert_index: int, replacement_0: str, replacement_1: str, data: list) -> int:
         row_count = 1
         data_SNs = [i.split(".")[0] for i in data]
         for row in self.sheet.iter_rows(1, self.sheet_height, values_only=True):
@@ -53,8 +54,12 @@ class excel_workbook():
                         self.sheet.cell(row=row_count, column=column_insert_index, value=po)
                         row_count += 1
             else:
+                self.blank_cells += 1
                 self.sheet.cell(row=row_count, column=column_insert_index, value=replacement_1)
                 row_count += 1
+
+    def get_blank_cells(self) -> int:
+        return self.blank_cells
 
 def date_is_valid(date: str) -> bool:
     days = int(date[0:2])
@@ -138,7 +143,6 @@ def main() -> None:
     else:
         old_sheet_name = excel_files[0]
 
-    #TODO: implement a way to show how many cells dont carry a PO, and needs to be filled in manually. Kinda like a warning of sort.
     #TODO: implement a warning-function for when things dont go as planned (eg: multiple xlsx files in the the dir, the dates of files are the same, etc)
 
     # assign the full file-path based on previous variables, to other variables that combine the path and the file-name.
@@ -176,10 +180,16 @@ def main() -> None:
             data=old_sheet_sn_po
             )
 
+    final_sheet_blank_POs = final_sheet.get_blank_cells()
+    if final_sheet_blank_POs > 0:
+        print(f"[!] Serial numbers without PO: {final_sheet_blank_POs}")
+    
     final_sheet.save_workbook(final_sheet_path)
     final_sheet.close_workbook()
     old_sheet.close_workbook()
-    print("\nDONE\n")
+    print("\n[+] DONE!\n")
+
+    input("[x] Press [ENTER] to exit the application")
 
 if __name__ == '__main__':
     main()

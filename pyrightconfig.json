@@ -1,7 +1,0 @@
-{
-	"include": ["."],
-	"exclude": ["env"],
-	"venvPath": ".",
-	"root": "./",
-	"venv": "env"
-}
