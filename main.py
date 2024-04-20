@@ -4,7 +4,7 @@ import os
 import configparser
 import openpyxl
 
-class excel_workbook():
+class Excel_Workbook():
 
     def __init__(self, path: str) -> None:
         self.xlsx_file = path
@@ -26,15 +26,21 @@ class excel_workbook():
             column_data_pair.append(str(row[column_0]) + "." + str(row[column_1]))
         return column_data_pair
 
-    def delete_column(self, columns_delete: list) -> None:
-        for column in columns_delete:
-            self.sheet.delete_cols(column)
-
     def save_workbook(self, filename: str) -> None:
         self.workbook.save(filename)
 
     def close_workbook(self) -> None:
         self.workbook.close() 
+
+    def delete_columns(self, columns_delete: list) -> None:
+        column_index_comp = 0
+        for index, column in enumerate(columns_delete):
+            if index == 0:
+                self.sheet.delete_cols(column)
+            else:
+                column -= column_index_comp
+                self.sheet.delete_cols(column)
+            column_index_comp += 1
 
     def match_and_insert(self, column_lane_index: int, column_insert_index: int, replacement_0: str, replacement_1: str, data: list) -> int:
         row_count = 1
@@ -99,10 +105,13 @@ def get_newest_date(d1: str, d2: str) -> str | None:
         return None
     d1_formated = d1.split('.')[::-1]
     d2_formated = d2.split('.')[::-1]
+    print(f"[+] Formated date: {d1_formated}\n[+] Formated date: {d2_formated}")
     if d1_formated > d2_formated:
+        print(f"[+] Newest date found: {d1}")
         return d1
     else:
-        return d2
+       print(f"[+] Newest date found: {d2}")
+       return d2
 
 def get_excel_files() -> list:
     files = os.listdir('.')
@@ -110,9 +119,16 @@ def get_excel_files() -> list:
     for file in files:
         if file[-5:] == '.xlsx':
             excel_files.append(file)
+            print(f"[+] Found file: {file}")
     return excel_files
 
+def error_handler(msg) -> None:
+    print(f"[!!] Warning: {msg}\n[!!] Exit the application, fix the issue then retry.")
+    input("[x] Press [ENTER] to exit the application.")
+    exit()
+
 def main() -> None:
+    print("\n----------logging started----------")
     # set configparser to read the config.
     config = configparser.ConfigParser()
     config.read('config.ini')
@@ -135,36 +151,44 @@ def main() -> None:
 
     # find the files to be manipulated.
     excel_files = get_excel_files()
-  
+
+    excel_file_1_date = get_date_from_str(excel_files[0])
+    excel_file_2_date = get_date_from_str(excel_files[1])
     # assign the excel files to variables based on the dates detected in their names, NOT meta-data dates.
-    new_sheet_name = str(get_newest_date(excel_files[0], excel_files[1]))
-    if new_sheet_name == excel_files[0]:
+    newest_date = str(get_newest_date(excel_file_1_date, excel_file_2_date))
+    if newest_date == excel_file_1_date:
         old_sheet_name = excel_files[1]
+        new_sheet_name = excel_files[0]
     else:
         old_sheet_name = excel_files[0]
+        new_sheet_name = excel_files[1]
 
     #TODO: implement a warning-function for when things dont go as planned (eg: multiple xlsx files in the the dir, the dates of files are the same, etc)
 
     # assign the full file-path based on previous variables, to other variables that combine the path and the file-name.
     new_sheet_path = new_sheet_path + new_sheet_name
+    print(f"[+] New sheet assigned to: {new_sheet_path}")
     old_sheet_path = old_sheet_path + old_sheet_name
+    print(f"[+] Old sheet assigned to: {old_sheet_path}")
     final_sheet_path = final_sheet_path + final_sheet_name
+    print("----------logging ended----------\n")
 
     # activate the workbooks.
-    old_sheet = excel_workbook(old_sheet_path)
-    new_sheet = excel_workbook(new_sheet_path)
+    old_sheet = Excel_Workbook(old_sheet_path)
+    new_sheet = Excel_Workbook(new_sheet_path)
 
     # need to convert "columns_to_delete" from string into list, for the compability.
     columns_to_delete = columns_to_delete.split(',')
     # use eval to convert every str-number to actual int.
     columns_to_delete = [eval(i) for i in columns_to_delete]
-    new_sheet.delete_column(columns_to_delete)
+    new_sheet.delete_columns(columns_to_delete)
     new_sheet.save_workbook(final_sheet_path)
     new_sheet.close_workbook()
 
-    final_sheet = excel_workbook(final_sheet_path)
+    final_sheet = Excel_Workbook(final_sheet_path)
 
     old_sheet_headers = old_sheet.get_all_column_headers()
+
     old_sheet_serial_index = old_sheet_headers.index(serial_column_text)
     old_sheet_po_index = old_sheet_headers.index(po_column_text)
     old_sheet_sn_po = old_sheet.map_data_pair(old_sheet_serial_index, old_sheet_po_index)
@@ -181,14 +205,17 @@ def main() -> None:
             )
 
     final_sheet_blank_POs = final_sheet.get_blank_cells()
-    print(f"[!] Serial numbers without PO: {final_sheet_blank_POs}")
+    if final_sheet_blank_POs == 0:
+        print(f"[+] Serial numbers without PO: {final_sheet_blank_POs}\n[+] No need to add new POs :)")
+    else:
+        print(f"[!] Serial numbers without PO: {final_sheet_blank_POs}\n[!] Remember to add the new POs !!\n[!] '{no_match_replacement}' is written where the PO should be.")
 
     final_sheet.save_workbook(final_sheet_path)
     final_sheet.close_workbook()
     old_sheet.close_workbook()
     print("\n[+] DONE!\n")
 
-    input("[x] Press [ENTER] to exit the application")
+    input("[x] Press [ENTER] to exit the application.")
 
 if __name__ == '__main__':
     main()
