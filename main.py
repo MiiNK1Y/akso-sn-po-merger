@@ -14,6 +14,9 @@ class Excel_Workbook():
         self.sheet_width = self.sheet.max_column
         self.blank_cells = 0
 
+    def create_sheet(self, sheet_name) -> None:
+        self.workbook.create_sheet(sheet_name)
+
     def get_all_column_headers(self) -> list:
         column_headers = []
         for header in self.sheet.iter_cols(1, self.sheet_width, values_only=True):
@@ -34,12 +37,9 @@ class Excel_Workbook():
 
     def delete_columns(self, columns_delete: list) -> None:
         column_index_comp = 0
-        for index, column in enumerate(columns_delete):
-            if index == 0:
-                self.sheet.delete_cols(column)
-            else:
-                column -= column_index_comp
-                self.sheet.delete_cols(column)
+        for column in columns_delete:
+            column -= column_index_comp
+            self.sheet.delete_cols(column)
             column_index_comp += 1
 
     def match_and_insert(self, column_lane_index: int, column_insert_index: int, replacement_0: str, replacement_1: str, data: list) -> int:
@@ -120,11 +120,16 @@ def get_excel_files() -> list:
         if file[-5:] == '.xlsx':
             excel_files.append(file)
             print(f"[+] Found file: {file}")
+            if len(excel_files) > 2:
+                error_handler("More than 2 excel files found in directory.")
+    if len(excel_files) < 2:
+        error_handler("Less than 2 excel files was found, 2 are needed for this operation.")
     return excel_files
 
+# TODO: implement more error handling across the project.
 def error_handler(msg) -> None:
-    print(f"[!!] Warning: {msg}\n[!!] Exit the application, fix the issue then retry.")
-    input("[x] Press [ENTER] to exit the application.")
+    print(f"\n[!!] Warning: {msg}\n[!!] Exit the application, fix the issue then retry.")
+    input("\n[x] Press [ENTER] to exit the application.")
     exit()
 
 def main() -> None:
@@ -163,15 +168,13 @@ def main() -> None:
         old_sheet_name = excel_files[0]
         new_sheet_name = excel_files[1]
 
-    #TODO: implement a warning-function for when things dont go as planned (eg: multiple xlsx files in the the dir, the dates of files are the same, etc)
-
     # assign the full file-path based on previous variables, to other variables that combine the path and the file-name.
     new_sheet_path = new_sheet_path + new_sheet_name
     print(f"[+] New sheet assigned to: {new_sheet_path}")
     old_sheet_path = old_sheet_path + old_sheet_name
     print(f"[+] Old sheet assigned to: {old_sheet_path}")
     final_sheet_path = final_sheet_path + final_sheet_name
-    print("----------logging ended----------\n")
+    print("-----------logging ended-----------\n")
 
     # activate the workbooks.
     old_sheet = Excel_Workbook(old_sheet_path)
@@ -210,11 +213,12 @@ def main() -> None:
     else:
         print(f"[!] Serial numbers without PO: {final_sheet_blank_POs}\n[!] Remember to add the new POs !!\n[!] '{no_match_replacement}' is written where the PO should be.")
 
+    final_sheet.create_sheet("Available in stock")
     final_sheet.save_workbook(final_sheet_path)
     final_sheet.close_workbook()
     old_sheet.close_workbook()
-    print("\n[+] DONE!\n")
 
+    print("\n[+] DONE!\n")
     input("[x] Press [ENTER] to exit the application.")
 
 if __name__ == '__main__':
