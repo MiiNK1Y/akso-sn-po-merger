@@ -169,6 +169,7 @@ def error_handler(msg) -> None:
 
 def main() -> None:
     print("\n----------logging started----------")
+
     # set configparser to read the config.
     config = configparser.ConfigParser()
     config.read("config.ini")
@@ -191,9 +192,9 @@ def main() -> None:
 
     # find the files to be manipulated.
     excel_files = get_excel_files()
-
     excel_file_1_date = get_date_from_str(excel_files[0])
     excel_file_2_date = get_date_from_str(excel_files[1])
+
     # assign the excel files to variables based on the dates detected in their names, NOT meta-data dates.
     newest_date = str(get_newest_date(excel_file_1_date, excel_file_2_date))
     if newest_date == excel_file_1_date:
@@ -217,6 +218,7 @@ def main() -> None:
 
     # need to convert "columns_to_delete" from string into list, for the compability.
     columns_to_delete = columns_to_delete.split(",")
+
     # use eval to convert every str-number to actual int.
     columns_to_delete = [eval(i) for i in columns_to_delete]
     new_sheet.delete_columns(columns_to_delete)
@@ -226,11 +228,9 @@ def main() -> None:
     final_sheet = Excel_Workbook(final_sheet_path)
 
     old_sheet_headers = old_sheet.get_all_column_headers()
-
     old_sheet_serial_index = old_sheet_headers.index(serial_column_text)
     old_sheet_po_index = old_sheet_headers.index(po_column_text)
     old_sheet_sn_po = old_sheet.map_column_data_pair(old_sheet_serial_index, old_sheet_po_index)
-
     final_sheet_headers = final_sheet.get_all_column_headers()
     final_sheet_serial_index = final_sheet_headers.index(serial_column_text)
 
@@ -261,5 +261,5 @@ def main() -> None:
     print("")
     input(clr_stt("[x] Press [ENTER] to exit the application."))
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
