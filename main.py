@@ -4,6 +4,10 @@ import os
 import configparser
 import openpyxl
 
+ # THIS FIXES ANSI COLORS FOR WINDOW
+from colorama import just_fix_windows_console
+just_fix_windows_console()
+
 class Excel_Workbook():
     def __init__(self, path: str) -> None:
         self.xlsx_file = path
