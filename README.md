@@ -57,7 +57,8 @@ This explanation is specific to the default config file in the repo. You may, <e
 
 6.  First off, the system creates a file with some sensitive, internal information for each product, so the columns containing this information needs to be delete before we send it to the customer.
 
-    <em>*See the config file for which columns we will be deleting by index, each column separated by "," (comma) and no white-space between each index-value.</em>
+    <em>*See the config file for which columns we will be deleting by index, each column separated by "," (comma) and no white-space between each index-value.<br>
+    *These may be edited.</em>
     ```ini
     columns_to_delete = 1,4,5,12,13
     ```
@@ -72,7 +73,7 @@ This explanation is specific to the default config file in the repo. You may, <e
 
 8.  Then, we start to seek each serial number and then paste the related PO number that was split by a "." (period) on the same row as the serial was found, beneath the "PO number" heading.
 
-    <em>*If there is a product that does not have a serial, then instead of a PO number, the program will fill "ACCESSORIES" in the cell.
+    <em>*If there is a product that does not have a serial, then instead of a PO number, the program will fill "ACCESSORIES" in the cell.<br>
     *What to fill in may be edited in the config:</em>
     ```ini
     none_to_match_replacement = ACCESSORIES
