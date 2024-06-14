@@ -1,7 +1,5 @@
 <div align="center">
     <img src="img/AKSOSPM.png" height="200px" alt="Logo" />
-    <br>
-    <br>
     <h1>AKSOSPM</h1>
     <h3>akso-sn-po-manager</h3>
     Bind data from two parallel cells and paste the bound data to the counterpart in a newer sheet.
