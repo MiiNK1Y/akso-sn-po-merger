@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="img/AKSOSPM.png" width="250px" align="center" alt="Logo" />
+    <img src="img/AKSOSPM.png" height="200px" alt="Logo" />
     <br>
     <br>
     <h1>AKSOSPM</h1>
