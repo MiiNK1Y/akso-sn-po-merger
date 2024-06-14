@@ -19,6 +19,48 @@ After multiple iterations, and working in ConfigParser to the mix, I was left wi
 
 TL;DR: We had no implementation to link serial numbers with PO numbers.
 
+## Installing dependencies
+
+Want to work with the script trough Python? You are going to need Openpyxl.<br>
+Install Openpyxl with PiP:
+
+```bash
+~ $ pip install openpyxl
+```
+
+Or using the 'requirements.txt' file:
+
+```bash
+~ $ pip install -r requirements.txt
+```
+
+## Running the script
+
+<li>Through Python, with Openpyxl installed:</li>
+
+```bash
+~ $ python3 akso-sn-po-merger.py
+```
+Or, if you have given the script execution rights with ```chmod +x akso-sn-po-merger.py``` in MacOS / Linux:
+
+```bash
+~ $ ./akso-sn-po-merger.py
+```
+
+<li>Using the compiled version for MacOS or Linux, while in a terminal:</li>
+
+```bash
+~ $ ./akso-sn-po-merger
+```
+
+<li>Using the compiled version for Windows, in CMD or Powershell:</li>
+
+```batch
+~ $ .\akso-sn-po-merger.exe
+```
+
+Or just double click the <strong>'akso-sn-po-merger.exe'</strong>...
+
 ## How the program goes about
 
 This explanation is specific to the default config file in the repo. You may, <em>of course</em>, edit the config to fit your need.

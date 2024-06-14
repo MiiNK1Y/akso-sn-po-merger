@@ -4,9 +4,11 @@ import os
 import configparser
 import openpyxl
 
- # THIS FIXES ANSI COLORS FOR WINDOW
-from colorama import just_fix_windows_console
-just_fix_windows_console()
+# clean the console. This is neccessary for ASCII color to work in Windows CMD.
+if os.name == 'nt':
+    os.system('cls')
+else:
+    os.system('clear')
 
 class Excel_Workbook():
     def __init__(self, path: str) -> None:
